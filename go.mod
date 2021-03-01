@@ -2,4 +2,7 @@ module kwiatek.xyz/todo-backend
 
 go 1.16
 
-require go.mongodb.org/mongo-driver v1.4.6 // indirect
+require (
+	github.com/gorilla/mux v1.8.0 // indirect
+	go.mongodb.org/mongo-driver v1.4.6 // indirect
+)

@@ -2,9 +2,12 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
 	"kwiatek.xyz/todo-backend/database"
+	"kwiatek.xyz/todo-backend/handlers"
 )
 
 func main(){
@@ -26,4 +29,12 @@ func main(){
 	for _,task := range tasks {
 		log.Print(task)
 	}
+
+	h := handlers.CreateHandlers(db)
+
+	r := mux.NewRouter()
+	
+	r.HandleFunc("/tasks", h.GetTasks).Methods("GET")
+
+	http.ListenAndServe(":8000",r)
 }
