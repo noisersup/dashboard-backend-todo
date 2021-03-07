@@ -33,8 +33,10 @@ func main(){
 	h := handlers.CreateHandlers(db)
 
 	r := mux.NewRouter()
-	
+
 	r.HandleFunc("/tasks", h.GetTasks).Methods("GET")
+	r.HandleFunc("/tasks", h.AddTask).Methods("POST")
+	r.HandleFunc("/tasks/{id}", h.RemoveTask).Methods("DELETE")
 
 	http.ListenAndServe(":8000",r)
 }

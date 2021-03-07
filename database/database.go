@@ -78,7 +78,7 @@ func (db *Database) AddTask(title string, desc string) (*mongo.InsertOneResult,e
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	task := models.Task{
+	task := models.NewTask{
 		Title: title,
 		Desc: desc,
 		Done: false,

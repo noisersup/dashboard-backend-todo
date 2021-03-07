@@ -10,6 +10,12 @@ type Task struct{
 	Done		bool `json:"done"`
 }
 
+type NewTask struct{
+	Title		string `json:"title"`
+	Desc		string `json:"desc"`
+	Done		bool `json:"done"`
+}
+
 type Tasks struct{
 	Tasks	[]Task `json:"tasks"`
 }
