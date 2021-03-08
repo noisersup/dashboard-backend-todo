@@ -41,8 +41,16 @@ func (todo *TodoServer) RemoveTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		//TODO
 	}
+	
+	resp, err := todo.db.RemoveTask(id)
+	if err != nil {
+		log.Printf("DELETE DB ERROR: %s",err.Error())	
+	}
+	if(resp.DeletedCount<1){
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 
-	todo.db.RemoveTask(id)
 	json.NewEncoder(w).Encode(`{'ID':`+params["id"]+` }`)
 }
 
