@@ -1,20 +1,25 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"kwiatek.xyz/todo-backend/database"
-	"kwiatek.xyz/todo-backend/handlers"
+	han "kwiatek.xyz/todo-backend/handlers"
 )
 
-func main(){
-	if len(os.Args)<2 { log.Fatalf("You must specify url address to database!")}
-	uri := os.Args[1] 
+func main(){	
+	corsPtr := flag.Bool("cors",false,"Enable CORS mode for locally debugging purposes.")
+	uriPtr := flag.String("uri","","Specify uri do mongodb database.")
+	flag.Parse()
 	
-	db,err := database.ConnectToDatabase(uri,"tasks","tasks")
+	if *uriPtr=="" { log.Fatalf("You must specify url address to database!")}
+
+	log.Printf("Connecting to database on %s",*uriPtr)
+	db,err := database.ConnectToDatabase(*uriPtr,"tasks","tasks")
 	if err != nil { log.Panic(err) }
 
 	defer func(){
@@ -30,13 +35,26 @@ func main(){
 		log.Print(task)
 	}
 
-	h := handlers.CreateHandlers(db)
+	h := han.CreateHandlers(db)
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/tasks", h.GetTasks).Methods("GET")
 	r.HandleFunc("/tasks", h.AddTask).Methods("POST")
 	r.HandleFunc("/tasks/{id}", h.RemoveTask).Methods("DELETE")
+	
+	var httpHandler http.Handler 
 
-	http.ListenAndServe(":8000",r)
+	if *corsPtr {
+		log.Printf("Warning!!! You are running CORS enabled mode. Do not use it on production")
+		headersOk := handlers.AllowedHeaders([]string{"*","Content-Type"})
+		originsOk := handlers.AllowedOrigins([]string{"*"})
+		methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+		httpHandler = handlers.CORS(originsOk, headersOk, methodsOk)(r)
+	}else{
+		httpHandler = r
+	}
+
+	log.Printf("Starting http server on port :8000...")
+	log.Fatal(http.ListenAndServe(":8000",httpHandler))
 }
