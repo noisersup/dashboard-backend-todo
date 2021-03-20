@@ -75,3 +75,21 @@ func (todo *TodoServer) AddTask(w http.ResponseWriter, r *http.Request){
 	}
 	json.NewEncoder(w).Encode(&task)
 }
+
+// func (todo *TodoServer) DoneTask(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type","application/json")
+// 	var task models.Task
+
+// 	log.Print("PUT!")
+
+// 	id,err := primitive.ObjectIDFromHex(params["id"])
+// 	if err != nil {
+// 		//TODO
+// 	}
+	
+// 	if err != nil {
+// 		log.Println(err)
+// 		//TODO
+// 	}
+// 	json.NewEncoder(w).Encode(&task)
+// }

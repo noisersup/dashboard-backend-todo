@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,7 +18,6 @@ import (
 type Database struct{
 	client	*mongo.Client
 	coll 	*mongo.Collection
-	last	int
 }
 
 func ConnectToDatabase(uri string, dbName string, collName string) (*Database,error){
@@ -37,7 +35,7 @@ func ConnectToDatabase(uri string, dbName string, collName string) (*Database,er
  
 	coll := client.Database(dbName).Collection(collName)
 
-	return &Database{client,coll,0},nil
+	return &Database{client,coll},nil
 }
 
 func (db *Database) Disconnect() error {
@@ -85,14 +83,10 @@ func (db *Database) AddTask(title string, desc string) (*mongo.InsertOneResult,e
 		Title: title,
 		Desc: desc,
 		Done: false,
-		Order: db.last+1,
 	}
 
 	result, err := db.coll.InsertOne(ctx,&task)
-	if err == nil{
-		db.last++
-	}
-	log.Printf("Last: %d",db.last)
+
 	return result, err
 }
 
@@ -192,28 +186,28 @@ func (db *Database) RemoveTask(id primitive.ObjectID) (*mongo.DeleteResult, erro
 // 	return nil
 // }
 
-func (db *Database) GetLastOrder() error{
-	pointers,err := db.GetTasks()
-	if err != nil {return err}
-	var tasks []models.Task 
+// func (db *Database) GetLastOrder() error{
+// 	pointers,err := db.GetTasks()
+// 	if err != nil {return err}
+// 	var tasks []models.Task 
 
-	for _,pointer := range pointers{
-		tasks= append(tasks, *pointer)
-	}
+// 	for _,pointer := range pointers{
+// 		tasks= append(tasks, *pointer)
+// 	}
 
-	if len(tasks)==0{
-		db.last=0
-		log.Printf("Last: %d",db.last)
-		return nil
-	}
-	for i:=0;i<len(tasks)-1;i++ {
-		if tasks[i].Order > tasks[i+1].Order{
-			buf := tasks[i]
-			tasks[i]=tasks[i+1]
-			tasks[i+1]=buf
-		}
-	}
-	db.last = tasks[len(tasks)-1].Order
-	log.Printf("Last: %d",db.last)
-	return nil
-}
+// 	if len(tasks)==0{
+// 		db.last=0
+// 		log.Printf("Last: %d",db.last)
+// 		return nil
+// 	}
+// 	for i:=0;i<len(tasks)-1;i++ {
+// 		if tasks[i].Order > tasks[i+1].Order{
+// 			buf := tasks[i]
+// 			tasks[i]=tasks[i+1]
+// 			tasks[i+1]=buf
+// 		}
+// 	}
+// 	db.last = tasks[len(tasks)-1].Order
+// 	log.Printf("Last: %d",db.last)
+// 	return nil
+// }
