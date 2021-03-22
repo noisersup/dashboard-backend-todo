@@ -18,6 +18,10 @@ type NewTask struct{
 	Order		int `json:"order"` 
 }
 
+type DoneTask struct {
+	Done		bool `json:"done"`
+}
+
 type Tasks struct{
 	Tasks	[]Task `json:"tasks"`
 }

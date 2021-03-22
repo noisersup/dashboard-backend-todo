@@ -44,6 +44,7 @@ func main(){
 	r.HandleFunc("/tasks", h.GetTasks).Methods("GET")
 	r.HandleFunc("/tasks", h.AddTask).Methods("POST")
 	r.HandleFunc("/tasks/{id}", h.RemoveTask).Methods("DELETE")
+	r.HandleFunc("/tasks/{id}", h.DoneTask).Methods("PATCH")
 	
 	var httpHandler http.Handler 
 
@@ -51,7 +52,7 @@ func main(){
 		log.Printf("Warning!!! You are running CORS enabled mode. Do not use it on production")
 		headersOk := handlers.AllowedHeaders([]string{"*","Content-Type"})
 		originsOk := handlers.AllowedOrigins([]string{"*"})
-		methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+		methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})
 		httpHandler = handlers.CORS(originsOk, headersOk, methodsOk)(r)
 	}else{
 		httpHandler = r

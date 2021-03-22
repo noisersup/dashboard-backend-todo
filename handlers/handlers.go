@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -76,20 +77,37 @@ func (todo *TodoServer) AddTask(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(&task)
 }
 
-// func (todo *TodoServer) DoneTask(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type","application/json")
-// 	var task models.Task
+func (todo *TodoServer) DoneTask(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type","application/json")
+	params := mux.Vars(r)
 
-// 	log.Print("PUT!")
+	log.Print("PATCH!")
 
-// 	id,err := primitive.ObjectIDFromHex(params["id"])
-// 	if err != nil {
-// 		//TODO
-// 	}
-	
-// 	if err != nil {
-// 		log.Println(err)
-// 		//TODO
-// 	}
-// 	json.NewEncoder(w).Encode(&task)
-// }
+	id,err := primitive.ObjectIDFromHex(params["id"])
+
+	if err != nil {
+		log.Printf("ID err %s",err)
+		//TODO
+	}
+
+	var doneModel models.DoneTask
+
+	err = json.NewDecoder(r.Body).Decode(&doneModel)
+	if err != nil {
+		log.Printf("Encoding err %s",err)
+		//TODO
+	}
+	if &doneModel.Done == nil {
+		log.Println("Done variable is empty")
+	}
+	fmt.Println(doneModel.Done)
+
+	if doneModel.Done {
+		_,err =todo.db.DoneTask(id)
+	}else{
+		_,err =todo.db.UndoneTask(id)
+	}
+	if err != nil {
+		log.Printf("Database err %s",err)
+	}
+}
