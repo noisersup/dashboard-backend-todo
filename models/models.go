@@ -22,6 +22,11 @@ type DoneTask struct {
 	Done		bool `json:"done"`
 }
 
-type Tasks struct{
+type GetResponse struct{
 	Tasks	[]Task `json:"tasks"`
+	Error	string `json:"error"`
+}
+
+type ErrorResponse struct{
+	Error	string `json:"error"`
 }
