@@ -22,8 +22,6 @@ func main(){
 	db,err := database.ConnectToDatabase(*uriPtr,"tasks","tasks")
 	if err != nil { log.Panic(err) }
 
-	if err != nil { log.Panic(err) }
-
 	defer func(){
 		if err = db.Disconnect(); err!=nil{
 			log.Fatalf("Problem with disconnecting: %s",err.Error())
