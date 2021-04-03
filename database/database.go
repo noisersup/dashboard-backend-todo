@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -117,9 +116,9 @@ func (db *Database) GetTask(id primitive.ObjectID) (*models.Task, error){
 
 	var task models.Task
 
-	res := db.coll.FindOne(ctx, bson.M{"_id": bson.M{"$eq": id}}).Decode(&task)
+	err := db.coll.FindOne(ctx, bson.M{"_id": bson.M{"$eq": id}}).Decode(&task)
 	
-	return &task, errors.New(res.Error())
+	return &task, err
 }
 
 func (db *Database) ReplaceTask(id primitive.ObjectID, secondId primitive.ObjectID) (*mongo.UpdateResult, error) {
