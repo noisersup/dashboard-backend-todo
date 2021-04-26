@@ -2,8 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -11,15 +14,19 @@ import (
 	han "kwiatek.xyz/todo-backend/handlers"
 )
 
+type DbConfig struct{
+	Address		string 
+	Port		int    
+}
+
 func main(){	
 	corsPtr := flag.Bool("cors",false,"Enable CORS mode for locally debugging purposes.")
-	uriPtr := flag.String("uri","","Specify uri do mongodb database.")
 	flag.Parse()
 	
-	if *uriPtr=="" { log.Fatalf("You must specify url address to database!")}
+	config := getVars() 
 
-	log.Printf("Connecting to database on %s",*uriPtr)
-	db,err := database.ConnectToDatabase(*uriPtr,"tasks","tasks")
+	log.Printf("Connecting to database on %s:%d",config.Address,config.Port)
+	db,err := database.ConnectToDatabase(config.Address+":"+fmt.Sprint(config.Port),"tasks","tasks")
 	if err != nil { log.Panic(err) }
 
 	defer func(){
@@ -58,4 +65,23 @@ func main(){
 
 	log.Printf("Starting http server on port :8000...")
 	log.Fatal(http.ListenAndServe(":8000",httpHandler))
+}
+
+func getVars() *DbConfig {	
+	var config DbConfig
+
+	config.Address = os.Getenv("DB_ADDRESS")
+	config.Port,_ = strconv.Atoi(os.Getenv("DB_PORT")) //default: 27017
+
+	if config.Address=="" { 
+		log.Fatal("ENV variables did not set")
+	}
+
+	config.Address = "mongodb://"+config.Address
+
+	if config.Port == 0 {
+		log.Print("Port invalid or not provided. Setting default (27017)")
+		config.Port=27017
+	}
+	return &config
 }
