@@ -147,6 +147,39 @@ func (db *Database) RemoveTask(id primitive.ObjectID) (*mongo.DeleteResult, erro
 		bson.M{"_id": bson.M{"$eq": id}},
 	)
 }
+
+
+func (db *Database) GetDueTasks() ([]models.Task, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var tasks []models.Task
+
+	cur, err := db.coll.Find(ctx, bson.D{{"due", bson.D{{"$ne", 0}}}})
+	if err != nil {return nil,err}
+
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	for cur.Next(ctx){
+		var task models.Task
+		err := cur.Decode(&task)
+		if err != nil {return nil, err}
+
+		tasks = append(tasks, task)
+	}
+	if err := cur.Err(); err != nil{
+		return nil,err
+	}
+	
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cur.Close(ctx)
+
+	return tasks, nil
+}
+
+
 //BLOAT (+not working)
 // func (db *Database) ReorderTasks() error{
 // 	pointers,err := db.GetTasks()
