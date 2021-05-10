@@ -40,6 +40,24 @@ func (todo *TodoServer) GetTasks(w http.ResponseWriter, r *http.Request){
 	utils.SendResponse(w,response,http.StatusOK)
 }
 
+func (todo *TodoServer) GetDues(w http.ResponseWriter, r *http.Request){
+	log.Print("GET Dues!") //TODO: remove
+
+	response := models.GetResponse{}
+	
+	t,err := todo.db.GetDueTasks()
+	if err != nil { // Database problems [500 code]
+		log.Printf("Database error: %s",err) //TODO: Log file
+
+		response.Error = "Database internal error"
+		utils.SendResponse(w,response,http.StatusInternalServerError)
+		return
+	}
+	
+	response.Tasks = t
+	utils.SendResponse(w,response,http.StatusOK)
+}
+
 func (todo *TodoServer) RemoveTask(w http.ResponseWriter, r *http.Request) {
 	log.Print("DELETE!") //TODO: remove
 	params := mux.Vars(r)

@@ -47,6 +47,8 @@ func main(){
 	r := mux.NewRouter()
 
 	r.HandleFunc("/tasks", h.GetTasks).Methods("GET")
+	r.HandleFunc("/tasks/due", h.GetDues).Methods("GET")
+	
 	r.HandleFunc("/tasks", h.AddTask).Methods("POST")
 	r.HandleFunc("/tasks/{id}", h.RemoveTask).Methods("DELETE")
 	r.HandleFunc("/tasks/{id}", h.DoneTask).Methods("PATCH")
