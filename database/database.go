@@ -74,15 +74,11 @@ func (db *Database) GetTasks() ([]*models.Task, error){
 	return tasks, nil
 }
 
-func (db *Database) AddTask(title string, desc string) (*mongo.InsertOneResult,error){
+func (db *Database) AddTask(task *models.NewTask) (*mongo.InsertOneResult,error){
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	task := models.NewTask{
-		Title: title,
-		Desc: desc,
-		Done: false,
-	}
+	task.Done = false
 
 	result, err := db.coll.InsertOne(ctx,&task)
 

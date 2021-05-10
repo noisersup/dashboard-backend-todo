@@ -86,7 +86,13 @@ func (todo *TodoServer) AddTask(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	_, err = todo.db.AddTask(task.Title,task.Desc) 
+	if task.Title == ""{
+		response.Error = "No title provided"
+		utils.SendResponse(w,response,http.StatusBadRequest)
+		return
+	}
+	
+	_, err = todo.db.AddTask(&task) 
 
 	if err != nil { // Database problems [500 code]
 		log.Printf("Database error: %s",err) //TODO: Log file
