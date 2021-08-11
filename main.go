@@ -25,17 +25,11 @@ func main() {
 
 	config := getVars()
 
-	var db *database.Database
+	var db database.Database
 
-	for {
-		log.Printf("Connecting to database on %s:%d", config.Address, config.Port)
-		d, err := database.ConnectToDatabase(config.Address+":"+fmt.Sprint(config.Port), "tasks", "tasks")
-		if err == nil {
-			db = d
-			break
-		}
-		log.Print(err)
-	}
+	log.Print("Connecting to database...")
+	connectDB(&db, config)
+	log.Print("Database connected ", db)
 
 	defer func() {
 		if err := db.Disconnect(); err != nil {
@@ -45,14 +39,15 @@ func main() {
 
 	tasks, err := db.GetTasks()
 	if err != nil {
-		log.Panic(err)
+		log.Print(err)
+		connectDB(&db, config)
 	}
 
 	for _, task := range tasks {
 		log.Print(task)
 	}
 
-	h := han.CreateHandlers(db)
+	h := han.CreateHandlers(&db)
 
 	r := mux.NewRouter()
 
@@ -77,6 +72,19 @@ func main() {
 
 	log.Printf("Starting http server on port :8000...")
 	log.Fatal(http.ListenAndServe(":8000", httpHandler))
+}
+
+func connectDB(dbVar *database.Database, config *DbConfig) {
+	for {
+		log.Printf("Connecting to database on %s:%d", config.Address, config.Port)
+		d, err := database.ConnectToDatabase(config.Address+":"+fmt.Sprint(config.Port), "tasks", "tasks")
+		if err == nil {
+			*dbVar = *d
+			break
+		}
+		log.Print(err)
+	}
+
 }
 
 func getVars() *DbConfig {
